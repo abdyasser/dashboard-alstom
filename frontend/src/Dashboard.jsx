@@ -293,28 +293,35 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
   return (
     <div className={`dashboard-container ${presentationMode ? 'presentation-mode' : ''}`}>
       <div className="dash-header">
-        <div className="dash-title-group">
-          <button className="btn-back hide-in-presentation" onClick={onReset}><ArrowLeft size={16}/> New Analysis</button>
-          
-          {sharedFolder ? (
-            <button className="btn-back hide-in-presentation" onClick={onRefresh} disabled={isSyncing} style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--green)', color: 'white', border: 'none'}}>
-              <RefreshCw size={16} className={isSyncing ? "spinner" : ""} /> {isSyncing ? 'Actualisation...' : 'Actualiser'}
-            </button>
-          ) : (
-            <>
-              <input type="file" multiple accept=".xlsx,.xls,.csv" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
-              <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
-            </>
-          )}
-
-          <button className="btn-back btn-presentation" onClick={togglePresentation} style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--navy)', color: 'white', border: 'none'}}>
-            {presentationMode ? <Minimize size={16}/> : <Maximize size={16}/>} 
-            {presentationMode ? 'Exit Presentation' : 'Presentation Mode'}
-          </button>
-          <h2 style={{marginLeft: '20px', transition: 'all 0.5s', display: 'flex', flexDirection: 'column'}}>
+        <div className="dash-title-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h2 style={{transition: 'all 0.5s', display: 'flex', flexDirection: 'column', margin: 0}}>
             <span>ALSTOM - IMFU Dashboard {selectedProject === 'All' ? '' : `- ${selectedProject.replace('.xlsx', '').replace('IMFU_', '')}`}</span>
-            {sharedFolder && <span style={{fontSize: '0.7rem', color: '#94a3b8', fontWeight: 'normal', marginTop: '2px'}}>Dossier synchronisé : {sharedFolder}</span>}
+            {sharedFolder && <span style={{fontSize: '0.7rem', color: '#94a3b8', fontWeight: 'normal', marginTop: '4px'}}>Dossier synchronisé : {sharedFolder}</span>}
           </h2>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button className="btn-back hide-in-presentation" onClick={onReset} style={{padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600'}}>
+              <ArrowLeft size={16}/> Accueil
+            </button>
+            
+            {sharedFolder ? (
+              <button className="btn-back hide-in-presentation" onClick={onRefresh} disabled={isSyncing} style={{padding: '0.6rem 1rem', background: 'var(--green)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600'}}>
+                <RefreshCw size={16} className={isSyncing ? "spinner" : ""} /> {isSyncing ? 'Actualisation...' : 'Actualiser'}
+              </button>
+            ) : (
+              <>
+                <input type="file" multiple accept=".xlsx,.xls,.csv" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
+                <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{padding: '0.6rem 1rem', background: 'var(--blue)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600'}}>
+                  + Add Files
+                </label>
+              </>
+            )}
+
+            <button className="btn-back btn-presentation" onClick={togglePresentation} style={{padding: '0.6rem 1rem', background: 'var(--navy)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600'}}>
+              {presentationMode ? <Minimize size={16}/> : <Maximize size={16}/>} 
+              {presentationMode ? 'Quitter Présentation' : 'Mode Présentation'}
+            </button>
+          </div>
         </div>
       </div>
       

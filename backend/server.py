@@ -18,14 +18,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.responses import JSONResponse
+
 @app.post("/api/upload")
 async def upload_files(files: List[UploadFile] = File(...)):
     all_items = []
+    errors = []
     for f in files:
         contents = await f.read()
-        items = parse_imfu_file(contents, f.filename)
-        all_items.extend(items)
-        
+        try:
+            items = parse_imfu_file(contents, f.filename)
+            all_items.extend(items)
+        except Exception as e:
+            errors.append(f"Erreur avec le fichier {f.filename}: {str(e)}")
+            
+    if errors:
+        return JSONResponse(status_code=400, content={"message": "Erreur lors du traitement de certains fichiers.", "errors": errors, "items": all_items})
     return {"message": "Success", "items": all_items}
 
 import sys

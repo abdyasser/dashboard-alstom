@@ -24,7 +24,14 @@ function App() {
       setItems(res.data.items)
     } catch (err) {
       console.error(err)
-      alert("Error uploading or parsing files.")
+      if (err.response && err.response.data && err.response.data.errors) {
+        alert(err.response.data.errors.join("\\n"))
+        if (err.response.data.items) {
+          setItems(err.response.data.items)
+        }
+      } else {
+        alert("Erreur de connexion ou fichier non reconnu.")
+      }
     } finally {
       setLoading(false)
     }
@@ -47,7 +54,14 @@ function App() {
       setItems(prevItems => [...prevItems, ...res.data.items])
     } catch (err) {
       console.error(err)
-      alert("Error uploading or parsing files.")
+      if (err.response && err.response.data && err.response.data.errors) {
+        alert(err.response.data.errors.join("\\n"))
+        if (err.response.data.items && err.response.data.items.length > 0) {
+          setItems(prevItems => [...prevItems, ...err.response.data.items])
+        }
+      } else {
+        alert("Erreur de connexion ou fichier non reconnu.")
+      }
     }
   }
 

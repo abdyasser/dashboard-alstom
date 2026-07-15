@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+pandas
+openpyxl
+xlrd
+python-calamine
+pywebview
+starlette

@@ -18,6 +18,14 @@ function App() {
         handleSync(res.data.shared_folder)
       }
     }).catch(err => console.error("Config load error:", err))
+    
+    window.onFolderDropped = (path) => {
+      setSharedFolder(path);
+    };
+    
+    return () => {
+      delete window.onFolderDropped;
+    }
   }, [])
 
   const handleSync = async (folderPath = sharedFolder) => {
@@ -57,6 +65,21 @@ function App() {
       }
     } catch (err) {
       alert("Erreur lors de la sauvegarde de la configuration.")
+    }
+  }
+
+  const handlePickSharedFolder = async () => {
+    if (window.pywebview && window.pywebview.api) {
+      try {
+        const folder = await window.pywebview.api.select_folder();
+        if (folder) {
+          setSharedFolder(folder);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      alert("La sélection de dossier native n'est pas disponible dans ce contexte.");
     }
   }
 
@@ -171,16 +194,17 @@ function App() {
           <div className="upload-box" style={{marginTop: '2rem', padding: '2rem', background: 'rgba(255,255,255,0.4)'}}>
             <FolderSync size={32} style={{color: 'var(--blue-acc)', marginBottom: '1rem'}} />
             <h3 style={{fontSize: '1.2rem', marginBottom: '0.5rem'}}>Dossier Réseau Partagé</h3>
-            <p className="subtitle" style={{marginBottom: '1rem', fontSize: '0.9rem'}}>L'application se synchronisera automatiquement à chaque ouverture.</p>
+            <p className="subtitle" style={{marginBottom: '1rem', fontSize: '0.9rem'}}>Glissez un dossier n'importe où dans la fenêtre, ou utilisez Parcourir.</p>
             
             <div style={{display: 'flex', gap: '10px', width: '100%', maxWidth: '500px'}}>
               <input 
                 type="text" 
                 value={sharedFolder} 
                 onChange={e => setSharedFolder(e.target.value)} 
-                placeholder="Ex: Z:\Equipe_IMFU" 
+                placeholder="Ex: /Users/Shared/Equipe_IMFU" 
                 style={{flex: 1, padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'var(--white)', outline: 'none'}} 
               />
+              <button className="btn-secondary" style={{padding: '0.8rem 1rem', background: '#e2e8f0', color: '#1e293b', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold'}} onClick={handlePickSharedFolder} title="Parcourir les dossiers">📁 Parcourir</button>
               <button className="btn-primary" style={{padding: '0.8rem 1.5rem'}} onClick={handleSaveAndSync}>Connecter</button>
             </div>
           </div>

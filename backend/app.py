@@ -15,7 +15,19 @@ def find_free_port():
 def start_server(port):
     uvicorn.run(fastapi_app, host="127.0.0.1", port=port, log_level="error")
 
+class JSApi:
+    def __init__(self):
+        self.window = None
+
+    def select_folder(self):
+        if self.window:
+            result = self.window.create_file_dialog(webview.FOLDER_DIALOG)
+            if result and len(result) > 0:
+                return result[0]
+        return None
+
 if __name__ == '__main__':
+    import os
     port = find_free_port()
     # Start the FastAPI server in a separate daemon thread
     server_thread = threading.Thread(target=start_server, args=(port,), daemon=True)
@@ -39,15 +51,31 @@ if __name__ == '__main__':
         print("Error: Could not start internal server.")
         exit(1)
 
+    api = JSApi()
+
     # Create the native desktop window
     window = webview.create_window(
         "Alstom IMFU Dashboard",
         f"http://127.0.0.1:{port}",
+        js_api=api,
         width=1280,
         height=800,
         min_size=(1024, 768),
         background_color='#F5F7FA'
     )
+    
+    api.window = window
+
+    def on_dropped(files):
+        if files and len(files) > 0:
+            path = files[0].replace('\\', '\\\\')
+            if os.path.isdir(path):
+                window.evaluate_js(f"if (window.onFolderDropped) window.onFolderDropped('{path}');")
+            else:
+                parent = os.path.dirname(files[0]).replace('\\', '\\\\')
+                window.evaluate_js(f"if (window.onFolderDropped) window.onFolderDropped('{parent}');")
+
+    window.events.dropped += on_dropped
     
     # Start the native GUI loop
     webview.start()

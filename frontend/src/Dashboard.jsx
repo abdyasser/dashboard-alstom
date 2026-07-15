@@ -302,7 +302,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
             {presentationMode ? 'Exit Presentation' : 'Presentation Mode'}
           </button>
           <h2 style={{marginLeft: '20px', transition: 'all 0.5s'}}>
-            ALSTOM - IMFU Dashboard {selectedProject === 'All' ? 'Consolidated (Portfolio)' : selectedProject.replace('.xlsx', '').replace('IMFU_', '')}
+            ALSTOM - IMFU Dashboard {selectedProject === 'All' ? '' : `- ${selectedProject.replace('.xlsx', '').replace('IMFU_', '')}`}
           </h2>
         </div>
       </div>

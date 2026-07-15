@@ -482,6 +482,11 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
           </table>
         </div>
       </div>
+      
+      {/* Footer Signature */}
+      <div style={{ textAlign: 'center', marginTop: '40px', padding: '20px 0', borderTop: '1px solid #e2e8f0', color: '#94a3b8', fontSize: '0.85rem' }}>
+        &copy; {new Date().getFullYear()} ALSTOM - IMFU Dashboard. Developed by Yasser Abdelmoumen.
+      </div>
     </div>
   )
 }

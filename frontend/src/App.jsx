@@ -215,6 +215,10 @@ function App() {
           <span>The intelligent engine automatically detects your IMFU file structure and normalizes the indicators.</span>
         </div>
       </div>
+      
+      <div style={{textAlign: 'center', position: 'absolute', bottom: '20px', width: '100%', color: 'var(--text-light)', fontSize: '0.9rem', opacity: 0.8}}>
+        © {new Date().getFullYear()} ALSTOM - Developed by Yasser Abdelmoumen
+      </div>
     </div>
   )
 }

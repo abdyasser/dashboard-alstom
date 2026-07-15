@@ -47,10 +47,14 @@ function App() {
   }
 
   const handleSaveAndSync = async () => {
-    if (!sharedFolder) return
     try {
       await axios.post('/api/config', { shared_folder: sharedFolder })
-      handleSync(sharedFolder)
+      if (sharedFolder.trim() !== '') {
+        handleSync(sharedFolder)
+      } else {
+        setUsingSharedFolder(false)
+        alert("Configuration du dossier effacée.")
+      }
     } catch (err) {
       alert("Erreur lors de la sauvegarde de la configuration.")
     }

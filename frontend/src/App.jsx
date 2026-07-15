@@ -18,7 +18,7 @@ function App() {
     }
     
     try {
-      const res = await axios.post('http://localhost:8000/api/upload', formData, {
+      const res = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       setItems(res.data.items)
@@ -47,7 +47,7 @@ function App() {
     }
     
     try {
-      const res = await axios.post('http://localhost:8000/api/upload', formData, {
+      const res = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       // Append the new items to the existing items

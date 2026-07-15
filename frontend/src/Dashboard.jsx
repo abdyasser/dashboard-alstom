@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'chart.js'
 import { Bar, Doughnut } from 'react-chartjs-2'
-import { ArrowLeft, AlertCircle, CheckCircle2, Clock } from 'lucide-react'
+import { ArrowLeft, AlertCircle, CheckCircle2, Clock, Maximize, Minimize } from 'lucide-react'
 
 ChartJS.register(
   CategoryScale,
@@ -39,6 +39,31 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
   const [selectedScope, setSelectedScope] = React.useState('All')
   const [selectedStatus, setSelectedStatus] = React.useState('All')
   const [selectedPriority, setSelectedPriority] = React.useState('All')
+  const [presentationMode, setPresentationMode] = React.useState(false)
+  
+  // Toggle Fullscreen DOM
+  const togglePresentation = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(e => console.log(e));
+      setPresentationMode(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setPresentationMode(false);
+    }
+  }
+
+  // Handle escape key for fullscreen exit
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setPresentationMode(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
   
   // Listes uniques pour les filtres
   const projects = ['All', ...Array.from(new Set(items.map(i => i.source_file)))]
@@ -285,19 +310,23 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
   }
 
   return (
-    <div className="dashboard-container">
+    <div className={`dashboard-container ${presentationMode ? 'presentation-mode' : ''}`}>
       <div className="dash-header">
         <div className="dash-title-group">
-          <button className="btn-back" onClick={onReset}><ArrowLeft size={16}/> New Analysis</button>
+          <button className="btn-back hide-in-presentation" onClick={onReset}><ArrowLeft size={16}/> New Analysis</button>
           <input type="file" multiple accept=".xlsx" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
-          <label htmlFor="add-file-upload" className="btn-back" style={{marginLeft: '10px', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
-          <h2 style={{marginLeft: '20px'}}>
+          <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
+          <button className="btn-back btn-presentation" onClick={togglePresentation} style={{marginLeft: '10px', background: 'var(--navy)', color: 'white', border: 'none'}}>
+            {presentationMode ? <Minimize size={16}/> : <Maximize size={16}/>} 
+            {presentationMode ? 'Exit Presentation' : 'Presentation Mode'}
+          </button>
+          <h2 style={{marginLeft: '20px', transition: 'all 0.5s'}}>
             ALSTOM - IMFU Dashboard {selectedProject === 'All' ? 'Consolidated (Portfolio)' : selectedProject.replace('.xlsx', '').replace('IMFU_', '')}
           </h2>
         </div>
       </div>
       
-      <div className="filters-bar">
+      <div className="filters-bar hide-in-presentation stagger-1">
         <div className="filter-group">
           <label>Project</label>
           <select className="filter-select" value={selectedProject} onChange={e => setSelectedProject(e.target.value)}>
@@ -345,14 +374,14 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
         ))}
       </div>
       
-      <div className="kpi-grid">
+      <div className="kpi-grid stagger-2">
         <KPICard title="Total Items" value={total} color="navy" icon={<Info size={20} color="#001F3F"/>} />
         <KPICard title="Overall Progress" value={`${progress}%`} color="blue" icon={<Clock size={20} color="#4472C4"/>} />
         <KPICard title="Completed Items" value={completed} color="green" icon={<CheckCircle2 size={20} color="#70AD47"/>} />
         <KPICard title="Blocked / At Risk" value={blocked} color="red" icon={<AlertCircle size={20} color="#C00000"/>} />
       </div>
       
-      <div className="charts-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+      <div className="charts-grid stagger-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
         <div className="chart-box">
           <div className="box-header">STATUS DISTRIBUTION</div>
           <div className="chart-wrapper">
@@ -375,7 +404,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
         </div>
       </div>
 
-      <div className="charts-grid" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+      <div className="charts-grid stagger-4" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
         <div className="chart-box">
           <div className="box-header">SCOPE SUMMARY</div>
           <div className="chart-wrapper">
@@ -391,7 +420,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
         </div>
       </div>
 
-      <div className="charts-grid" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', alignItems: 'start' }}>
+      <div className="charts-grid stagger-5" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', alignItems: 'start' }}>
         <div className="chart-box">
           <div className="box-header">PRIORITY vs STATUS MATRIX</div>
           <div style={{ padding: '1rem' }} className="table-responsive">
@@ -447,8 +476,8 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
         </div>
       </div>
       
-      <div className="blockers-section">
-        <div className="box-header header-red">TOP BLOCKED OR AT RISK ITEMS ({blockers.length})</div>
+      <div className="blockers-section stagger-6">
+        <div className="box-header header-red pulse-header">TOP BLOCKED OR AT RISK ITEMS ({blockers.length})</div>
         <div className="table-responsive">
           <table style={{ fontSize: '0.9rem' }}>
             <thead>

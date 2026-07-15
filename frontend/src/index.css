@@ -570,3 +570,92 @@ tbody tr:hover {
   font-weight: 600;
   font-size: 1.1rem;
 }
+
+/* ==================== PRESENTATION MODE & ANIMATIONS ==================== */
+
+/* Staggered load animations */
+@keyframes slideUpFade {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+.stagger-2 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+.stagger-3 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+.stagger-4 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+.stagger-5 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+.stagger-6 { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+
+/* Pulse animation for critical headers */
+@keyframes pulseRed {
+  0% { background-color: rgba(192, 0, 0, 0.03); }
+  50% { background-color: rgba(192, 0, 0, 0.12); }
+  100% { background-color: rgba(192, 0, 0, 0.03); }
+}
+.pulse-header {
+  animation: pulseRed 2.5s infinite;
+}
+
+/* Presentation Mode Overrides */
+.presentation-mode {
+  padding: 1.5rem !important;
+  max-width: 100% !important;
+  background: white; /* Cleaner background for projection */
+}
+
+.presentation-mode .hide-in-presentation {
+  display: none !important;
+}
+
+.presentation-mode .dash-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  justify-content: center;
+}
+
+.presentation-mode .dash-title-group {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.presentation-mode .dash-title-group h2 {
+  font-size: 3.2rem;
+  text-align: center;
+  flex: 1;
+}
+
+.presentation-mode .btn-presentation {
+  order: 2;
+  margin-left: auto;
+}
+
+.presentation-mode .kpi-value {
+  font-size: 4.5rem;
+}
+
+.presentation-mode .kpi-title {
+  font-size: 1.1rem;
+}
+
+.presentation-mode th {
+  font-size: 1rem;
+}
+
+.presentation-mode td {
+  font-size: 1.1rem;
+}
+
+.presentation-mode .badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Enhance Row Hover for Presentation */
+.presentation-mode tbody tr:hover {
+  transform: scale(1.02) translateX(10px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  background: #F8FAFC;
+}
+

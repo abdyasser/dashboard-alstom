@@ -92,12 +92,17 @@ def parse_imfu_file(file_content, filename):
     for idx, row in df.iterrows():
         name_val = str(row.get(col_name)).strip() if col_name and not pd.isna(row.get(col_name)) else ""
         
+        owner_val = str(row.get(col_owner)).strip() if col_owner and not pd.isna(row.get(col_owner)) else ""
+        if owner_val.lower() in ['nan', 'none', '']:
+            owner_val = "Unassigned"
+        else:
+            owner_val = owner_val.title()
+            
         # We don't skip entirely if name is missing if it's a fallback parse (header might be wrong)
         # But if name is missing AND everything else is missing, skip.
         if not name_val or name_val.lower() in ['nan', 'none', '']:
             # check if other important fields are there
-            owner_val = str(row.get(col_owner)).strip() if col_owner and not pd.isna(row.get(col_owner)) else ""
-            if not owner_val or owner_val.lower() in ['nan', 'none', '']:
+            if owner_val == "Unassigned":
                 continue
             name_val = "Sans titre"
             
@@ -112,7 +117,7 @@ def parse_imfu_file(file_content, filename):
             "name": name_val,
             "status": "Not Started",
             "priority": "Medium",
-            "owner": str(row.get(col_owner)) if col_owner and not pd.isna(row.get(col_owner)) else "Unassigned",
+            "owner": owner_val,
             "next_action": str(row.get(col_action)) if col_action and not pd.isna(row.get(col_action)) else "-",
             "issue": str(row.get(col_issue)) if col_issue and not pd.isna(row.get(col_issue)) else "-",
             "target_date": ""

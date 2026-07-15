@@ -296,8 +296,8 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
         <div className="dash-title-group">
           <button className="btn-back hide-in-presentation" onClick={onReset}><ArrowLeft size={16}/> New Analysis</button>
           <input type="file" multiple accept=".xlsx" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
-          <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
-          <button className="btn-back btn-presentation" onClick={togglePresentation} style={{marginLeft: '10px', background: 'var(--navy)', color: 'white', border: 'none'}}>
+          <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
+          <button className="btn-back btn-presentation" onClick={togglePresentation} style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--navy)', color: 'white', border: 'none'}}>
             {presentationMode ? <Minimize size={16}/> : <Maximize size={16}/>} 
             {presentationMode ? 'Exit Presentation' : 'Presentation Mode'}
           </button>

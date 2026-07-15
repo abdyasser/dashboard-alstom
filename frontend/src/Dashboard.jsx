@@ -41,29 +41,10 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
   const [selectedPriority, setSelectedPriority] = React.useState('All')
   const [presentationMode, setPresentationMode] = React.useState(false)
   
-  // Toggle Fullscreen DOM
+  // Toggle Presentation UI (without forcing native DOM Fullscreen which fails in pywebview)
   const togglePresentation = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(e => console.log(e));
-      setPresentationMode(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-      setPresentationMode(false);
-    }
+    setPresentationMode(!presentationMode)
   }
-
-  // Handle escape key for fullscreen exit
-  React.useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        setPresentationMode(false);
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
   
   // Listes uniques pour les filtres
   const projects = ['All', ...Array.from(new Set(items.map(i => i.source_file)))]

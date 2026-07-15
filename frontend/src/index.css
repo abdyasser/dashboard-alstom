@@ -143,6 +143,7 @@ body {
   background: radial-gradient(circle at center, rgba(68,114,196,0.05) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.4s;
+  pointer-events: none;
 }
 
 .upload-box:hover {

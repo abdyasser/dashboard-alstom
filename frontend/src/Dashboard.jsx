@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'chart.js'
 import { Bar, Doughnut } from 'react-chartjs-2'
-import { ArrowLeft, AlertCircle, CheckCircle2, Clock, Maximize, Minimize } from 'lucide-react'
+import { ArrowLeft, AlertCircle, CheckCircle2, Clock, Maximize, Minimize, RefreshCw } from 'lucide-react'
 
 ChartJS.register(
   CategoryScale,
@@ -34,7 +34,7 @@ function KPICard({ title, value, icon, color }) {
   )
 }
 
-export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) {
+export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, onRefresh, isSyncing, sharedFolder }) {
   const [selectedProject, setSelectedProject] = React.useState('All')
   const [selectedScope, setSelectedScope] = React.useState('All')
   const [selectedStatus, setSelectedStatus] = React.useState('All')
@@ -295,14 +295,25 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile }) 
       <div className="dash-header">
         <div className="dash-title-group">
           <button className="btn-back hide-in-presentation" onClick={onReset}><ArrowLeft size={16}/> New Analysis</button>
-          <input type="file" multiple accept=".xlsx" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
-          <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
+          
+          {sharedFolder ? (
+            <button className="btn-back hide-in-presentation" onClick={onRefresh} disabled={isSyncing} style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--green)', color: 'white', border: 'none'}}>
+              <RefreshCw size={16} className={isSyncing ? "spinner" : ""} /> {isSyncing ? 'Actualisation...' : 'Actualiser'}
+            </button>
+          ) : (
+            <>
+              <input type="file" multiple accept=".xlsx,.xls,.csv" onChange={onAddFiles} id="add-file-upload" style={{display: 'none'}} />
+              <label htmlFor="add-file-upload" className="btn-back hide-in-presentation" style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--blue)', color: 'white', border: 'none'}}>+ Add Files</label>
+            </>
+          )}
+
           <button className="btn-back btn-presentation" onClick={togglePresentation} style={{marginLeft: '10px', padding: '0.6rem 1rem', background: 'var(--navy)', color: 'white', border: 'none'}}>
             {presentationMode ? <Minimize size={16}/> : <Maximize size={16}/>} 
             {presentationMode ? 'Exit Presentation' : 'Presentation Mode'}
           </button>
-          <h2 style={{marginLeft: '20px', transition: 'all 0.5s'}}>
-            ALSTOM - IMFU Dashboard {selectedProject === 'All' ? '' : `- ${selectedProject.replace('.xlsx', '').replace('IMFU_', '')}`}
+          <h2 style={{marginLeft: '20px', transition: 'all 0.5s', display: 'flex', flexDirection: 'column'}}>
+            <span>ALSTOM - IMFU Dashboard {selectedProject === 'All' ? '' : `- ${selectedProject.replace('.xlsx', '').replace('IMFU_', '')}`}</span>
+            {sharedFolder && <span style={{fontSize: '0.7rem', color: '#94a3b8', fontWeight: 'normal', marginTop: '2px'}}>Dossier synchronisé : {sharedFolder}</span>}
           </h2>
         </div>
       </div>

@@ -19,6 +19,71 @@ app.add_middleware(
 )
 
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import json
+
+CONFIG_FILE = os.path.expanduser("~/.imfu_dashboard_config.json")
+
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_config(data):
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(data, f)
+
+class ConfigModel(BaseModel):
+    shared_folder: str
+
+@app.get("/api/config")
+def get_config():
+    return load_config()
+
+@app.post("/api/config")
+def update_config(config: ConfigModel):
+    data = load_config()
+    data["shared_folder"] = config.shared_folder
+    save_config(data)
+    return {"message": "Config updated", "config": data}
+
+@app.get("/api/sync")
+def sync_folder():
+    config = load_config()
+    folder = config.get("shared_folder")
+    if not folder or not os.path.exists(folder):
+        return JSONResponse(status_code=400, content={"message": "Dossier partagé introuvable ou non configuré."})
+    
+    all_items = []
+    errors = []
+    
+    try:
+        files = os.listdir(folder)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": f"Impossible d'accéder au dossier: {str(e)}"})
+        
+    for filename in files:
+        if filename.startswith("~$") or filename.startswith("."):
+            continue
+        if filename.lower().endswith((".xlsx", ".xls", ".csv")):
+            filepath = os.path.join(folder, filename)
+            try:
+                with open(filepath, 'rb') as f:
+                    contents = f.read()
+                items = parse_imfu_file(contents, filename)
+                all_items.extend(items)
+            except Exception as e:
+                errors.append(f"Erreur avec {filename}: {str(e)}")
+                
+    if not all_items and errors:
+        return JSONResponse(status_code=400, content={"message": "Échec de lecture des fichiers.", "errors": errors, "items": []})
+        
+    return {"message": "Success", "items": all_items, "errors": errors}
+
 
 @app.post("/api/upload")
 async def upload_files(files: List[UploadFile] = File(...)):

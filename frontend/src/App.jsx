@@ -194,7 +194,7 @@ function App() {
           <div className="upload-box" style={{marginTop: '2rem', padding: '2rem', background: 'rgba(255,255,255,0.4)'}}>
             <FolderSync size={32} style={{color: 'var(--blue-acc)', marginBottom: '1rem'}} />
             <h3 style={{fontSize: '1.2rem', marginBottom: '0.5rem'}}>Dossier Réseau Partagé</h3>
-            <p className="subtitle" style={{marginBottom: '1rem', fontSize: '0.9rem'}}>Glissez un dossier n'importe où dans la fenêtre, ou utilisez Parcourir.</p>
+            <p className="subtitle" style={{marginBottom: '1rem', fontSize: '0.9rem'}}>Cliquez sur "Parcourir" pour sélectionner le dossier, ou saisissez-le manuellement.</p>
             
             <div style={{display: 'flex', gap: '10px', width: '100%', maxWidth: '500px'}}>
               <input 

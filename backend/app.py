@@ -65,17 +65,6 @@ if __name__ == '__main__':
     )
     
     api.window = window
-
-    def on_dropped(files):
-        if files and len(files) > 0:
-            path = files[0].replace('\\', '\\\\')
-            if os.path.isdir(path):
-                window.evaluate_js(f"if (window.onFolderDropped) window.onFolderDropped('{path}');")
-            else:
-                parent = os.path.dirname(files[0]).replace('\\', '\\\\')
-                window.evaluate_js(f"if (window.onFolderDropped) window.onFolderDropped('{parent}');")
-
-    window.events.dropped += on_dropped
     
     # Start the native GUI loop
     webview.start()

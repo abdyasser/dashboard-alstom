@@ -77,6 +77,8 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
   const completed = statusCounts['Completed']
   const blocked = statusCounts['Blocked'] + statusCounts['At Risk']
   const progress = total ? Math.round((completed / total) * 100) : 0
+  const openItems = total - completed - statusCounts['Cancelled']
+  const blockerRate = openItems > 0 ? Math.round((blocked / openItems) * 100) : 0
   
   const blockers = filteredItems.filter(it => it.status === 'Blocked' || it.status === 'At Risk')
   
@@ -175,16 +177,21 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
 
   // Deadline Analysis
   const deadlineCounts = {
-    'Overdue': 0,
-    'Due Soon (< 7d)': 0,
+    'Overdue (> 30d)': 0,
+    'Overdue (< 30d)': 0,
+    'Due Soon (< 30d)': 0,
     'On Track': 0,
     'No Date': 0
   }
   
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const nextWeek = new Date(today)
-  nextWeek.setDate(nextWeek.getDate() + 7)
+  
+  const nextMonth = new Date(today)
+  nextMonth.setDate(nextMonth.getDate() + 30)
+  
+  const pastMonth = new Date(today)
+  pastMonth.setDate(pastMonth.getDate() - 30)
   
   filteredItems.forEach(it => {
     if (it.status !== 'Completed' && it.status !== 'Cancelled') {
@@ -195,10 +202,12 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
         if (isNaN(target.getTime())) {
            deadlineCounts['No Date']++
         } else {
-           if (target < today) {
-             deadlineCounts['Overdue']++
-           } else if (target <= nextWeek) {
-             deadlineCounts['Due Soon (< 7d)']++
+           if (target < pastMonth) {
+             deadlineCounts['Overdue (> 30d)']++
+           } else if (target < today) {
+             deadlineCounts['Overdue (< 30d)']++
+           } else if (target <= nextMonth) {
+             deadlineCounts['Due Soon (< 30d)']++
            } else {
              deadlineCounts['On Track']++
            }
@@ -208,12 +217,12 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
   })
   
   const deadlineData = {
-    labels: ['Overdue', 'Due Soon (< 7d)', 'On Track', 'No Date'],
+    labels: ['Overdue (> 30d)', 'Overdue (< 30d)', 'Due Soon (< 30d)', 'On Track', 'No Date'],
     datasets: [
       {
         label: 'Items (Not Completed)',
-        data: [deadlineCounts['Overdue'], deadlineCounts['Due Soon (< 7d)'], deadlineCounts['On Track'], deadlineCounts['No Date']],
-        backgroundColor: ['#C00000', '#ED7D31', '#70AD47', '#D9D9D9'],
+        data: [deadlineCounts['Overdue (> 30d)'], deadlineCounts['Overdue (< 30d)'], deadlineCounts['Due Soon (< 30d)'], deadlineCounts['On Track'], deadlineCounts['No Date']],
+        backgroundColor: ['#8B0000', '#C00000', '#ED7D31', '#70AD47', '#D9D9D9'],
       }
     ]
   }
@@ -373,11 +382,12 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
         ))}
       </div>
       
-      <div className="kpi-grid stagger-2">
+      <div className="kpi-grid stagger-2" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'}}>
         <KPICard title="Total Items" value={total} color="navy" icon={<Info size={20} color="#001F3F"/>} />
         <KPICard title="Overall Progress" value={`${progress}%`} color="blue" icon={<Clock size={20} color="#4472C4"/>} />
         <KPICard title="Completed Items" value={completed} color="green" icon={<CheckCircle2 size={20} color="#70AD47"/>} />
         <KPICard title="Blocked / At Risk" value={blocked} color="red" icon={<AlertCircle size={20} color="#C00000"/>} />
+        <KPICard title="Blocker Rate" value={`${blockerRate}%`} color={blockerRate >= 15 ? "red" : "navy"} icon={<AlertCircle size={20} color={blockerRate >= 15 ? "#C00000" : "#001F3F"}/>} />
       </div>
       
       <div className="charts-grid stagger-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
@@ -389,7 +399,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
         </div>
         
         <div className="chart-box">
-          <div className="box-header">HEALTH BY OWNER (LOAD VS BLOCKED)</div>
+          <div className="box-header">RESOURCE BOTTLENECK (LOAD VS BLOCKED)</div>
           <div className="chart-wrapper">
             <Bar options={stackedOptions} data={stackedData} />
           </div>

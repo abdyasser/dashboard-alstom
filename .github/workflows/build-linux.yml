@@ -1,0 +1,106 @@
+name: Build Linux App
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Permet de lancer la compilation manuellement
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install System Dependencies (GTK/WebKit for pywebview)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libwebkit2gtk-4.1-dev \
+          libgtk-3-dev \
+          libayatana-appindicator3-dev \
+          gir1.2-webkit2-4.1 \
+          gir1.2-ayatanaappindicator3-0.1 \
+          libgirepository1.0-dev \
+          gobject-introspection \
+          pkg-config \
+          python3-gi \
+          python3-gi-cairo
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js (Pour le Frontend)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: |
+        npm install
+        npm run build
+
+    - name: Install Backend Dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller pygobject
+
+    - name: Build Linux Binary with PyInstaller
+      working-directory: ./backend
+      run: pyinstaller "Dashboard Alstom Linux.spec"
+
+    - name: Make binary executable
+      run: chmod +x backend/dist/"Dashboard Alstom"
+
+    - name: Create .desktop launcher
+      run: |
+        cat > backend/dist/alstom-imfu-dashboard.desktop << 'EOF'
+        [Desktop Entry]
+        Name=Alstom IMFU Dashboard
+        Comment=Dashboard de suivi des items IMFU Alstom
+        Exec=./Dashboard\ Alstom
+        Icon=alstom
+        Terminal=false
+        Type=Application
+        Categories=Office;Utility;
+        EOF
+
+    - name: Package as tar.gz
+      run: |
+        mkdir -p release
+        cp backend/dist/"Dashboard Alstom" release/
+        cp backend/dist/alstom-imfu-dashboard.desktop release/
+        cp backend/alstom.png release/alstom.png
+        cat > release/README.txt << 'READMEEOF'
+        ============================================
+          Alstom IMFU Dashboard — Linux Ubuntu
+        ============================================
+
+        PRÉREQUIS:
+        Avant de lancer l'application, installez les dépendances système :
+
+          sudo apt install -y libwebkit2gtk-4.1-0 libgtk-3-0 libayatana-appindicator3-1 gir1.2-webkit2-4.1
+
+        LANCEMENT:
+          chmod +x "Dashboard Alstom"
+          ./"Dashboard Alstom"
+
+        INSTALLATION DU RACCOURCI (optionnel):
+          cp alstom-imfu-dashboard.desktop ~/.local/share/applications/
+          cp alstom.png ~/.local/share/icons/alstom.png
+
+        ============================================
+        READMEEOF
+        cd release && tar -czf ../Alstom-IMFU-Dashboard-Linux.tar.gz *
+
+    - name: Upload Linux Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Alstom-IMFU-Dashboard-Linux
+        path: Alstom-IMFU-Dashboard-Linux.tar.gz

@@ -38,10 +38,10 @@ jobs:
 
     - name: Build EXE with PyInstaller
       working-directory: ./backend
-      run: pyinstaller "Alstom IMFU Dashboard.spec"
+      run: pyinstaller "Dashboard Alstom.spec"
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Alstom-IMFU-Dashboard-Windows
-        path: backend/dist/Alstom IMFU Dashboard.exe
+        path: backend/dist/Dashboard Alstom.exe

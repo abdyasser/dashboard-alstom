@@ -1,19 +1,25 @@
-name: Build Windows Executable
+name: Build Windows EXE
 
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch:
+  workflow_dispatch: # Permet de lancer la compilation manuellement
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' 
+
+    - name: Set up Node.js (Pour le Frontend)
+      uses: actions/setup-node@v3
       with:
         node-version: '20'
 
@@ -23,25 +29,19 @@ jobs:
         npm install
         npm run build
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
-
-    - name: Install dependencies
+    - name: Install Backend Dependencies
       working-directory: ./backend
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Build with PyInstaller
+    - name: Build EXE with PyInstaller
       working-directory: ./backend
-      run: |
-        pyinstaller --name "Dashboard_Alstom" --windowed --icon=alstom.ico --add-data "../frontend/dist;frontend/dist" --hidden-import webview app.py
+      run: pyinstaller "Alstom IMFU Dashboard.spec"
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+    - name: Upload EXE Artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: Dashboard_Alstom_Windows
-        path: backend/dist/Dashboard_Alstom
+        name: Alstom-IMFU-Dashboard-Windows
+        path: backend/dist/Alstom IMFU Dashboard.exe

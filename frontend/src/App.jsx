@@ -40,7 +40,7 @@ function App() {
         alert("Le dossier est vide ou ne contient aucun fichier valide.")
       }
       if (res.data.errors && res.data.errors.length > 0) {
-        alert("Certains fichiers ont échoué:\\n" + res.data.errors.join("\\n"))
+        alert("Certains fichiers ont échoué:\n" + res.data.errors.join("\n"))
       }
     } catch (err) {
       console.error(err)
@@ -101,7 +101,7 @@ function App() {
     } catch (err) {
       console.error(err)
       if (err.response && err.response.data && err.response.data.errors) {
-        alert(err.response.data.errors.join("\\n"))
+        alert(err.response.data.errors.join("\n"))
         if (err.response.data.items) {
           setItems(err.response.data.items)
         }
@@ -117,6 +117,7 @@ function App() {
     const files = e.target.files
     if (!files.length) return
     
+    setLoading(true)
     const formData = new FormData()
     for(let i=0; i<files.length; i++) {
       formData.append('files', files[i])
@@ -131,13 +132,15 @@ function App() {
     } catch (err) {
       console.error(err)
       if (err.response && err.response.data && err.response.data.errors) {
-        alert(err.response.data.errors.join("\\n"))
+        alert(err.response.data.errors.join("\n"))
         if (err.response.data.items && err.response.data.items.length > 0) {
           setItems(prevItems => [...prevItems, ...err.response.data.items])
         }
       } else {
         alert("Erreur de connexion ou fichier non reconnu.")
       }
+    } finally {
+      setLoading(false)
     }
   }
 

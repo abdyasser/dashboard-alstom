@@ -128,7 +128,14 @@ def parse_imfu_file(file_content, filename):
             if isinstance(val, pd.Timestamp):
                 item["target_date"] = val.strftime('%Y-%m-%d')
             else:
-                item["target_date"] = str(val)[:10]
+                import re
+                date_str = str(val).strip()
+                dd_mm_yyyy = re.match(r'^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$', date_str)
+                if dd_mm_yyyy:
+                    day, month, year = dd_mm_yyyy.groups()
+                    item["target_date"] = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+                else:
+                    item["target_date"] = date_str[:10]
         
         if col_status and not pd.isna(row.get(col_status)) and str(row.get(col_status)).strip() != "":
             s = str(row.get(col_status)).strip().lower()
@@ -153,8 +160,8 @@ def parse_imfu_file(file_content, filename):
             
         if col_priority and not pd.isna(row.get(col_priority)):
             p = str(row.get(col_priority)).strip().lower()
-            if "high" in p or "haute" in p or "crit" in p or "1" in p: item["priority"] = "High"
-            elif "low" in p or "basse" in p or "3" in p: item["priority"] = "Low"
+            if "high" in p or "haute" in p or "crit" in p or p.strip() == "1": item["priority"] = "High"
+            elif "low" in p or "basse" in p or p.strip() == "3": item["priority"] = "Low"
             
         items.append(item)
         

@@ -1,9 +1,8 @@
-fastapi
-uvicorn
-python-multipart
-pandas
-openpyxl
-xlrd
-python-calamine
-pywebview
-starlette
+fastapi>=0.111.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+pandas>=2.2.0
+openpyxl>=3.1.0
+xlrd>=2.0.0
+python-calamine>=0.2.0
+pywebview>=5.0

@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('../frontend/dist', '../frontend/dist')],
+    datas=[('../frontend/dist', 'frontend/dist')],
     hiddenimports=['webview'],
     hookspath=[],
     hooksconfig={},
@@ -45,6 +45,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='Alstom IMFU Dashboard.app',
-    icon=None,
-    bundle_identifier=None,
+    icon='alstom.icns',
+    bundle_identifier='com.alstom.imfu-dashboard',
 )

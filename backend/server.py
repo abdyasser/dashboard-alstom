@@ -1,10 +1,13 @@
 import os
+import sys
+import json
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 from typing import List
+from pydantic import BaseModel
 from imfu_parser import parse_imfu_file
 
 app = FastAPI(title="IMFU Dashboard API")
@@ -13,14 +16,9 @@ app = FastAPI(title="IMFU Dashboard API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-import json
 
 CONFIG_FILE = os.path.expanduser("~/.imfu_dashboard_config.json")
 
@@ -29,7 +27,7 @@ def load_config():
         try:
             with open(CONFIG_FILE, 'r') as f:
                 return json.load(f)
-        except:
+        except (json.JSONDecodeError, IOError, OSError):
             return {}
     return {}
 
@@ -97,11 +95,9 @@ async def upload_files(files: List[UploadFile] = File(...)):
         except Exception as e:
             errors.append(f"Erreur avec le fichier {f.filename}: {str(e)}")
             
-    if errors:
-        return JSONResponse(status_code=400, content={"message": "Erreur lors du traitement de certains fichiers.", "errors": errors, "items": all_items})
-    return {"message": "Success", "items": all_items}
-
-import sys
+    if errors and not all_items:
+        return JSONResponse(status_code=400, content={"message": "Erreur lors du traitement des fichiers.", "errors": errors, "items": []})
+    return {"message": "Success", "items": all_items, "errors": errors}
 
 # Serve static files from the Vite build
 if getattr(sys, 'frozen', False):
@@ -121,6 +117,9 @@ if os.path.exists(frontend_dist):
         # Serve the index.html for all other routes to support React Router or SPA
         index_file = os.path.join(frontend_dist, "index.html")
         requested_file = os.path.join(frontend_dist, full_path)
+        # Security: prevent path traversal attacks
+        if not os.path.realpath(requested_file).startswith(os.path.realpath(frontend_dist)):
+            return FileResponse(index_file)
         if os.path.isfile(requested_file):
             return FileResponse(requested_file)
         return FileResponse(index_file)

@@ -27,7 +27,6 @@ class JSApi:
         return None
 
 if __name__ == '__main__':
-    import os
     port = find_free_port()
     # Start the FastAPI server in a separate daemon thread
     server_thread = threading.Thread(target=start_server, args=(port,), daemon=True)

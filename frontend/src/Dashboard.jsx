@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -151,7 +151,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
       },
       {
         label: 'In Progress',
-        data: topScopes.map(s => s.total - s.completed - s.blocked),
+        data: topScopes.map(s => Math.max(0, s.total - s.completed - s.blocked)),
         backgroundColor: '#4472C4', // blue
       },
       {
@@ -276,7 +276,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
       },
       {
         label: 'In Progress',
-        data: topOwners.map(o => o[1].total - o[1].completed - o[1].blocked),
+        data: topOwners.map(o => Math.max(0, o[1].total - o[1].completed - o[1].blocked)),
         backgroundColor: '#4472C4', // blue
       },
       {
@@ -383,7 +383,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
       </div>
       
       <div className="kpi-grid stagger-2" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'}}>
-        <KPICard title="Total Items" value={total} color="navy" icon={<Info size={20} color="#001F3F"/>} />
+        <KPICard title="Total Items" value={total} color="navy" icon={<InfoIcon size={20} color="#001F3F"/>} />
         <KPICard title="Overall Progress" value={`${progress}%`} color="blue" icon={<Clock size={20} color="#4472C4"/>} />
         <KPICard title="Completed Items" value={completed} color="green" icon={<CheckCircle2 size={20} color="#70AD47"/>} />
         <KPICard title="Blocked / At Risk" value={blocked} color="red" icon={<AlertCircle size={20} color="#C00000"/>} />
@@ -474,7 +474,7 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
                   <tr key={name}>
                     <td className="desc-cell" style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</td>
                     <td style={{ fontWeight: 'bold', color: 'var(--green)' }}>{data.completed}</td>
-                    <td style={{ color: 'var(--blue-acc)' }}>{data.total - data.blocked - data.completed}</td>
+                    <td style={{ color: 'var(--blue-acc)' }}>{Math.max(0, data.total - data.blocked - data.completed)}</td>
                     <td style={{ fontWeight: 'bold', color: 'var(--red)' }}>{data.blocked}</td>
                     <td>{data.total}</td>
                   </tr>
@@ -501,19 +501,19 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
               </tr>
             </thead>
             <tbody>
-              {blockers.length > 0 ? blockers.map((b, i) => (
-                <tr key={i}>
+              {blockers.length > 0 ? blockers.map((b) => (
+                <tr key={`${b.source_file}-${b.item_id}`}>
                   <td style={{ whiteSpace: 'nowrap' }}><span className="badge-source" style={{display:'block', marginBottom:'4px'}}>{b.source_file}</span>{b.item_id}</td>
                   <td className="desc-cell" style={{minWidth: '200px'}}>{b.name}</td>
                   <td style={{fontWeight: '600', color: 'var(--navy-med)'}}>{b.owner}</td>
                   <td style={{color: 'var(--red)', fontSize: '0.85rem'}}>{b.issue !== '-' ? b.issue : 'Not provided'}</td>
                   <td style={{fontSize: '0.85rem'}}>{b.next_action !== '-' ? b.next_action : 'No action'}</td>
                   <td style={{whiteSpace: 'nowrap', fontWeight: '500', color: 'var(--text-muted)'}}>{b.target_date || '-'}</td>
-                  <td><span className={`badge prio-${b.priority.toLowerCase()}`}>{b.priority}</span></td>
+                  <td><span className={`badge prio-${(b.priority || 'medium').toLowerCase()}`}>{b.priority || 'Medium'}</span></td>
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan="6" className="empty-state">No blocked or at risk items.</td>
+                  <td colSpan="7" className="empty-state">No blocked or at risk items.</td>
                 </tr>
               )}
             </tbody>
@@ -529,6 +529,6 @@ export default function Dashboard({ items, onReset, onAddFiles, onRemoveFile, on
   )
 }
 
-function Info({size, color}) {
+function InfoIcon({size, color}) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 }
